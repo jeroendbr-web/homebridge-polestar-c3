@@ -2,20 +2,60 @@
   "pluginAlias": "PolestarC3",
   "pluginType": "platform",
   "singular": true,
-  "headerDisplay": "Onofficiële Polestar-koppeling via de cloud-backend van de Polestar-app. Log in met je Polestar ID. Let op: reverse-engineered API, kan zonder waarschuwing breken.",
+  "strictValidation": false,
+  "headerDisplay": "Onofficiële Polestar-koppeling via de cloud-backend van de Polestar-app (C3). Log in met je Polestar ID. Reverse-engineered API: kan zonder waarschuwing breken. Tip: draai deze plugin als **child bridge**.",
+  "footerDisplay": "De login-sessie wordt bewaard in de Homebridge-opslagmap (`polestar-c3/`), zodat niet bij elke herstart met wachtwoord wordt ingelogd.",
   "schema": {
     "type": "object",
+    "required": ["email", "password"],
     "properties": {
-      "email": { "title": "Polestar ID (e-mail)", "type": "string", "required": true, "format": "email" },
-      "password": { "title": "Wachtwoord", "type": "string", "required": true, "x-schema-form": { "type": "password" } },
+      "name": { "title": "Naam", "type": "string", "default": "Polestar" },
+      "email": { "title": "Polestar ID (e-mail)", "type": "string", "format": "email" },
+      "password": { "title": "Wachtwoord", "type": "string", "x-schema-form": { "type": "password" } },
       "vin": { "title": "VIN (optioneel)", "type": "string", "description": "Alleen nodig bij meerdere auto's of een gast-account." },
       "pollIntervalMinutes": { "title": "Ververs-interval (minuten)", "type": "integer", "default": 10, "minimum": 2, "maximum": 60 },
-      "climateTemperature": { "title": "Klimaat doeltemperatuur (°C)", "type": "integer", "default": 21, "minimum": 16, "maximum": 28 },
-      "enableLock": { "title": "Slot-accessoire (met batterijstatus)", "type": "boolean", "default": true },
-      "enableClimate": { "title": "Klimaat-schakelaar", "type": "boolean", "default": true },
+      "activePollIntervalMinutes": { "title": "Ververs-interval tijdens laden/klimaat (minuten)", "type": "integer", "default": 2, "minimum": 1, "maximum": 30 },
+      "lowBatteryThreshold": { "title": "Drempel 'batterij laag' (%)", "type": "integer", "default": 20, "minimum": 5, "maximum": 80 },
+      "enableLock": { "title": "Slot (met batterijstatus)", "type": "boolean", "default": true },
+      "enableClimate": { "title": "Klimaat", "type": "boolean", "default": true },
+      "climateAccessory": {
+        "title": "Klimaat als",
+        "type": "string",
+        "default": "switch",
+        "oneOf": [
+          { "title": "Schakelaar (aan/uit)", "enum": ["switch"] },
+          { "title": "Thermostaat (met doel- en interieurtemperatuur)", "enum": ["thermostat"] }
+        ],
+        "condition": { "functionBody": "return model.enableClimate !== false;" }
+      },
+      "climateTemperature": { "title": "Klimaat doeltemperatuur (°C)", "type": "number", "default": 21, "minimum": 16, "maximum": 28, "multipleOf": 0.5 },
       "enableChargerSensor": { "title": "Sensor 'lader aangesloten'", "type": "boolean", "default": true },
+      "enableOpenings": { "title": "Sensoren portieren / ramen / achterklep", "type": "boolean", "default": true },
+      "enableWarnings": { "title": "Waarschuwingen bandenspanning en onderhoud", "type": "boolean", "default": false },
       "enableChargeSwitch": { "title": "Laad-schakelaar (overridet alleen een actief laadschema)", "type": "boolean", "default": false },
+      "enableHonkFlash": { "title": "Knop 'auto zoeken' (knipperen)", "type": "boolean", "default": false },
+      "honkFlashMode": {
+        "title": "Zoeken doet",
+        "type": "string",
+        "default": "flash",
+        "oneOf": [
+          { "title": "Alleen knipperen", "enum": ["flash"] },
+          { "title": "Toeteren en knipperen", "enum": ["honk_and_flash"] }
+        ],
+        "condition": { "functionBody": "return model.enableHonkFlash === true;" }
+      },
       "disableWrites": { "title": "Noodrem: blokkeer alle commando's (alleen uitlezen)", "type": "boolean", "default": false }
     }
-  }
+  },
+  "layout": [
+    { "type": "fieldset", "title": "Account", "items": ["email", "password", "vin"] },
+    {
+      "type": "fieldset", "title": "Accessoires", "expandable": true, "expanded": true,
+      "items": ["enableLock", "enableClimate", "climateAccessory", "climateTemperature", "enableChargerSensor", "enableOpenings", "enableWarnings", "enableChargeSwitch", "enableHonkFlash", "honkFlashMode"]
+    },
+    {
+      "type": "fieldset", "title": "Geavanceerd", "expandable": true, "expanded": false,
+      "items": ["pollIntervalMinutes", "activePollIntervalMinutes", "lowBatteryThreshold", "disableWrites", "name"]
+    }
+  ]
 }
