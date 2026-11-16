@@ -1,18 +1,22 @@
 # Changelog
 
-## 0.2.0 — 16 november 2026
-- Polestar C3-client bijgewerkt naar Homey Polestar v3.5.0: login-sessie (refresh token) wordt bewaard in de Homebridge-opslag, dus geen wachtwoord-login meer bij elke herstart; netwerkfouten laten de sessie intact; geen dubbele token-refresh meer.
-- Auth-meldingen in het log (sessie hergebruikt / verlopen / wachtwoord-login).
-- Niet-ondersteunde diensten (gRPC UNIMPLEMENTED, verschilt per Polestar 2/3/4) worden één keer gemeld en daarna overgeslagen.
-- Opstarten mislukt? Automatisch opnieuw proberen (5 → 60 min). Netjes afsluiten bij Homebridge-shutdown.
-- Sneller verversen tijdens laden of klimaat (`activePollIntervalMinutes`, standaard 2 min).
-- HomeKit toont "Geen reactie" als er nog nooit (of al lang geen) data is, i.p.v. verzonnen waarden.
-- Nieuw: klimaat als thermostaat (doeltemperatuur + interieurtemperatuur), sensoren portieren/ramen/achterklep, waarschuwingen bandenspanning/onderhoud, knop "auto zoeken" (knipperen/toeteren).
-- Slot zet de doelstatus terug als een commando mislukt.
-- `ConfiguredName` op services, firmwareversie van de auto in de accessoire-info, accessoire-categorieën.
-- Homebridge 2.x klaar: `engines` node `^22.12 || ^24 || ^26`, homebridge `^1.8 || ^2.0`. Node 18/20 niet meer ondersteund.
-- Config-scherm met secties, voorwaardelijke velden en `required`-array.
-- Smoke-test met echte HAP-NodeJS (`npm test`).
+## 0.2.1 — 16 November 2026
+- Everything in English: log messages, accessory names, settings screen and documentation.
+- Existing accessories keep the names they already have in the Home app; only newly added accessories get English names.
 
-## 0.1.0 — 6 juli 2026
-- Eerste versie: slot + batterij, klimaatschakelaar, lader-sensor, optionele laadschakelaar.
+## 0.2.0 — 16 November 2026
+- Polestar C3 client updated to Homey Polestar v3.5.0: the login session (refresh token) is stored in Homebridge storage, so there is no password login on every restart; network errors keep the session; no more duplicate token refreshes.
+- Auth events in the log (session restored / expired / password login).
+- Unsupported services (gRPC UNIMPLEMENTED, differs between Polestar 2/3/4) are reported once and then skipped.
+- Startup failed? Automatic retry (5 → 60 min). Clean shutdown when Homebridge stops.
+- Faster refresh while charging or climate is on (`activePollIntervalMinutes`, default 2 min).
+- HomeKit shows "No Response" when there has never been (or not for a long time) any data, instead of made-up values.
+- New: climate as a thermostat (target + cabin temperature), door/window/tailgate sensors, tyre pressure/service warnings, "find my car" button (flash/honk).
+- The lock reverts its target state when a command fails.
+- `ConfiguredName` on services, vehicle firmware version in accessory info, accessory categories.
+- Ready for Homebridge 2.x: `engines` node `^22.12 || ^24 || ^26`, homebridge `^1.8 || ^2.0`. Node 18/20 no longer supported.
+- Settings screen with sections, conditional fields and a `required` array.
+- Smoke test with real HAP-NodeJS (`npm test`).
+
+## 0.1.0 — 6 July 2026
+- First version: lock + battery, climate switch, charger sensor, optional charging switch.

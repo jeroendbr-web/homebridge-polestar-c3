@@ -1,5 +1,5 @@
 'use strict';
-// Smoke-test: echte HAP-NodeJS, nep Polestar-client. Draai met `node --test`.
+// Smoke test: real HAP-NodeJS, fake Polestar client. Run with `npm test`.
 const test = require('node:test');
 const assert = require('node:assert');
 const os = require('os');
@@ -52,7 +52,7 @@ function fakeClient(calls) {
     };
 }
 
-test('platform start, accessoires en commando’s', async () => {
+test('platform setup, accessories and commands', async () => {
     const hap = await loadHap();
     const storage = fs.mkdtempSync(path.join(os.tmpdir(), 'hb-'));
     const api = makeApi(hap, storage);
@@ -61,7 +61,7 @@ test('platform start, accessoires en commando’s', async () => {
     const p = new PolestarPlatform(log, { email: 'a@b.c', password: 'x', climateAccessory: 'thermostat',
         enableWarnings: true, enableHonkFlash: true, climateTemperature: 22.5 }, api);
     const client = fakeClient(calls);
-    p.client = client; // start() overslaan: geen echte login
+    p.client = client; // skip start(): no real login
     const { Service: S, Characteristic: C } = hap;
     p.vehicle = { vin: 'YSMTEST0000000001' }; p.model = 'Polestar 3';
     p.setupAccessories();
@@ -82,21 +82,21 @@ test('platform start, accessoires en commando’s', async () => {
     assert.strictEqual(tyres.getCharacteristic(C.OccupancyDetected).value, 1);
     assert.ok(p.unsupported.has('climate'));
 
-    // onGet via HAP
+    // onGet through HAP
     assert.strictEqual(await bat.getCharacteristic(C.BatteryLevel).handleGetRequest(), 82);
 
-    // commando's
+    // commands
     await lock.getCharacteristic(C.LockTargetState).handleSetRequest(C.LockTargetState.UNSECURED);
     const th = byKind('climate-thermostat').getService(S.Thermostat);
     await th.getCharacteristic(C.TargetHeatingCoolingState).handleSetRequest(C.TargetHeatingCoolingState.AUTO);
     await byKind('honkflash').getService(S.Switch).getCharacteristic(C.On).handleSetRequest(true);
     assert.deepStrictEqual(calls, ['unlock', ['climateStart', 22.5], ['honk', 2]]);
 
-    // noodrem
+    // kill switch
     p.config.disableWrites = true;
     await assert.rejects(lock.getCharacteristic(C.LockTargetState).handleSetRequest(C.LockTargetState.SECURED));
 
-    // sessie opslaan
+    // session persistence
     p.saveSession({ refresh_token: 'rt', access_token: 'secret', obtained_at: 1 });
     const saved = p.loadSession();
     assert.strictEqual(saved.refresh_token, 'rt');
@@ -105,7 +105,7 @@ test('platform start, accessoires en commando’s', async () => {
     p.shutdown();
 });
 
-test('start niet zonder config', async () => {
+test('does not start without config', async () => {
     const hap = await loadHap();
     const api = makeApi(hap, os.tmpdir());
     const { PolestarPlatform } = require('../lib/platform');
