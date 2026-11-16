@@ -1,5 +1,10 @@
 # homebridge-polestar-c3
 
+[![Release](https://img.shields.io/github/v/release/jeroendbr-web/homebridge-polestar-c3?label=release)](https://github.com/jeroendbr-web/homebridge-polestar-c3/releases)
+[![Homebridge](https://img.shields.io/badge/homebridge-1.8%20%7C%202.x-491F59?logo=homebridge)](https://homebridge.io)
+[![Node](https://img.shields.io/badge/node-22%20%7C%2024%20%7C%2026-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+[![License](https://img.shields.io/github/license/jeroendbr-web/homebridge-polestar-c3)](LICENSE)
+
 Onofficiële [Homebridge](https://homebridge.io) plugin voor Polestar 2, 3 en 4. Bedien en volg je Polestar in de Apple Woning-app: slot, klimaat, laden, batterij, portieren en meer.
 
 De plugin praat met dezelfde cloud-backend als de officiële Polestar-app (C3, gRPC), via de JavaScript-client uit de [Homey Polestar app](https://github.com/kaohlive/Polestar) van Vincent Boer.
