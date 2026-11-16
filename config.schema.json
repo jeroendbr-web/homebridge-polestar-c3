@@ -1,0 +1,21 @@
+{
+  "pluginAlias": "PolestarC3",
+  "pluginType": "platform",
+  "singular": true,
+  "headerDisplay": "Onofficiële Polestar-koppeling via de cloud-backend van de Polestar-app. Log in met je Polestar ID. Let op: reverse-engineered API, kan zonder waarschuwing breken.",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "email": { "title": "Polestar ID (e-mail)", "type": "string", "required": true, "format": "email" },
+      "password": { "title": "Wachtwoord", "type": "string", "required": true, "x-schema-form": { "type": "password" } },
+      "vin": { "title": "VIN (optioneel)", "type": "string", "description": "Alleen nodig bij meerdere auto's of een gast-account." },
+      "pollIntervalMinutes": { "title": "Ververs-interval (minuten)", "type": "integer", "default": 10, "minimum": 2, "maximum": 60 },
+      "climateTemperature": { "title": "Klimaat doeltemperatuur (°C)", "type": "integer", "default": 21, "minimum": 16, "maximum": 28 },
+      "enableLock": { "title": "Slot-accessoire (met batterijstatus)", "type": "boolean", "default": true },
+      "enableClimate": { "title": "Klimaat-schakelaar", "type": "boolean", "default": true },
+      "enableChargerSensor": { "title": "Sensor 'lader aangesloten'", "type": "boolean", "default": true },
+      "enableChargeSwitch": { "title": "Laad-schakelaar (overridet alleen een actief laadschema)", "type": "boolean", "default": false },
+      "disableWrites": { "title": "Noodrem: blokkeer alle commando's (alleen uitlezen)", "type": "boolean", "default": false }
+    }
+  }
+}
