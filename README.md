@@ -1,5 +1,6 @@
 # homebridge-polestar-c3
 
+[![Tests](https://github.com/jeroendbr-web/homebridge-polestar-c3/actions/workflows/test.yml/badge.svg)](https://github.com/jeroendbr-web/homebridge-polestar-c3/actions/workflows/test.yml)
 [![Release](https://img.shields.io/github/v/release/jeroendbr-web/homebridge-polestar-c3?label=release)](https://github.com/jeroendbr-web/homebridge-polestar-c3/releases)
 [![Homebridge](https://img.shields.io/badge/homebridge-1.8%20%7C%202.x-491F59?logo=homebridge)](https://homebridge.io)
 [![Node](https://img.shields.io/badge/node-22%20%7C%2024%20%7C%2026-339933?logo=node.js&logoColor=white)](https://nodejs.org)
