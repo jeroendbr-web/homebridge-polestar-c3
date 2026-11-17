@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.2 — 17 November 2026
+- Fix: about once an hour a refresh failed with "Refresh failed: no status could be read". The Polestar backend closes the connection roughly every hour (HTTP/2 GOAWAY) and requests in flight were cancelled without a retry. Each status read now retries once on a fresh connection.
+- "Refresh failed" now includes the underlying reason.
+- Fix: a refresh error was not reported when one of the services is unsupported by the vehicle.
+
 ## 0.2.1 — 16 November 2026
 - Everything in English: log messages, accessory names, settings screen and documentation.
 - Existing accessories keep the names they already have in the Home app; only newly added accessories get English names.

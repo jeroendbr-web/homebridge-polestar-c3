@@ -113,3 +113,31 @@ test('does not start without config', async () => {
     assert.strictEqual(api.listenerCount('didFinishLaunching'), 0);
     p.shutdown();
 });
+
+test('retries once after a cancelled stream (GOAWAY)', async () => {
+    const hap = await loadHap();
+    const api = makeApi(hap, fs.mkdtempSync(path.join(os.tmpdir(), 'hb-')));
+    const { PolestarPlatform } = require('../lib/platform');
+    const p = new PolestarPlatform(log, { email: 'a@b.c', password: 'x' }, api);
+    const client = fakeClient([]);
+    let batteryCalls = 0;
+    const realBattery = client.getLatestBattery;
+    client.getLatestBattery = async () => {
+        batteryCalls++;
+        if (batteryCalls === 1) throw new Error('The pending stream has been canceled (caused by: GOAWAY)');
+        return realBattery();
+    };
+    client.getLatestExterior = async () => { throw new Error('session destroyed'); };
+    p.client = client;
+    p.vehicle = { vin: 'YSMTEST0000000001' }; p.model = 'Polestar 3';
+    p.setupAccessories();
+    await p.refresh();
+    assert.strictEqual(batteryCalls, 2);
+    assert.strictEqual(p.state.batteryLevel, 82);
+    assert.ok(p.state.lastOk > 0);
+
+    // everything failing → error that includes the reason
+    client.getLatestBattery = async () => { throw new Error('session destroyed'); };
+    await assert.rejects(p.refresh(), /no status could be read \(session destroyed\)/);
+    p.shutdown();
+});
