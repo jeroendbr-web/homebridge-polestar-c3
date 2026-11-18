@@ -141,3 +141,21 @@ test('retries once after a cancelled stream (GOAWAY)', async () => {
     await assert.rejects(p.refresh(), /no status could be read \(session destroyed\)/);
     p.shutdown();
 });
+
+test('client routes its messages to the Homebridge logger', () => {
+    const { PolestarC3 } = require('../lib/polestar-c3/client');
+    const seen = [];
+    const c = new PolestarC3('a@b.c', 'x', { logger: { debug: (m) => seen.push(['debug', m]), warn: (m) => seen.push(['warn', m]) } });
+    c._log('debug', 'goaway');
+    c._log('warn', 'ping failed');
+    assert.deepStrictEqual(seen, [['debug', 'goaway'], ['warn', 'ping failed']]);
+});
+
+test('compressed gRPC frames are rejected, not thrown from an event handler', async () => {
+    const { parseFrames } = require('../lib/polestar-c3/grpc');
+    const frame = Buffer.from([1, 0, 0, 0, 1, 0x42]); // compressed flag set
+    assert.throws(() => parseFrames(frame), /Compressed/);
+    const src = fs.readFileSync(path.join(__dirname, '../lib/polestar-c3/grpc.js'), 'utf8');
+    assert.ok(!/accept-encoding': 'identity,gzip'/.test(src));
+    assert.ok(/try \{\s*frames = parseFrames\(body\);/.test(src));
+});

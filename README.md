@@ -1,5 +1,6 @@
 # homebridge-polestar-c3
 
+[![verified-by-homebridge](https://img.shields.io/badge/homebridge-verified-blueviolet?color=%23491F59&style=flat)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
 [![Tests](https://github.com/jeroendbr-web/homebridge-polestar-c3/actions/workflows/test.yml/badge.svg)](https://github.com/jeroendbr-web/homebridge-polestar-c3/actions/workflows/test.yml)
 [![Release](https://img.shields.io/github/v/release/jeroendbr-web/homebridge-polestar-c3?label=release)](https://github.com/jeroendbr-web/homebridge-polestar-c3/releases)
 [![Homebridge](https://img.shields.io/badge/homebridge-1.8%20%7C%202.x-491F59?logo=homebridge)](https://homebridge.io)
@@ -85,7 +86,12 @@ npm install
 npm test
 ```
 
-The Polestar client in `lib/polestar-c3/` is an unmodified copy of `clone_modules/polestar-c3/` from [kaohlive/Polestar](https://github.com/kaohlive/Polestar). To update it, copy those files over.
+The Polestar client in `lib/polestar-c3/` is a copy of `clone_modules/polestar-c3/` from [kaohlive/Polestar](https://github.com/kaohlive/Polestar) (v3.5.0), with two small local changes, each marked with a `homebridge-polestar-c3:` comment:
+
+- `grpc.js` only asks for uncompressed replies, and a compressed frame is rejected as an error instead of throwing in an event handler.
+- `client.js` accepts an optional `logger` so its messages go through the Homebridge log.
+
+When updating the client from upstream, re-apply these changes.
 
 ## Credits
 
@@ -94,4 +100,4 @@ The Polestar client in `lib/polestar-c3/` is an unmodified copy of `clone_module
 
 ## License
 
-GPL-3.0, see [LICENSE](LICENSE).
+GPL-3.0-only, see [LICENSE](LICENSE).

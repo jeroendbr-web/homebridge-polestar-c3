@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.3 — 18 November 2026
+Verified by Homebridge 🎉. Suggestions from the review:
+- Fix: the client advertised gzip support it does not have; a compressed reply would have thrown outside any error handler and could crash Homebridge. It now only asks for uncompressed replies, and an unexpected compressed frame is reported as a normal error.
+- Client messages (GOAWAY, retries, failed pings) go through the Homebridge log with the plugin name; routine reconnects are now debug-level, so the hourly `HTTP/2 GOAWAY received` line no longer shows in the normal log.
+- Licence identifier updated to `GPL-3.0-only`.
+- "Verified by Homebridge" badge in the README.
+
 ## 0.2.2 — 17 November 2026
 - Fix: about once an hour a refresh failed with "Refresh failed: no status could be read". The Polestar backend closes the connection roughly every hour (HTTP/2 GOAWAY) and requests in flight were cancelled without a retry. Each status read now retries once on a fresh connection.
 - "Refresh failed" now includes the underlying reason.
