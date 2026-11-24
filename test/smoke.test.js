@@ -159,3 +159,59 @@ test('compressed gRPC frames are rejected, not thrown from an event handler', as
     assert.ok(!/accept-encoding': 'identity,gzip'/.test(src));
     assert.ok(/try \{\s*frames = parseFrames\(body\);/.test(src));
 });
+
+test('commands are not stacked or repeated, connection is closed, rate limits slow polling', async () => {
+    const hap = await loadHap();
+    const api = makeApi(hap, fs.mkdtempSync(path.join(os.tmpdir(), 'hb-')));
+    const { PolestarPlatform } = require('../lib/platform');
+    const p = new PolestarPlatform(log, { email: 'a@b.c', password: 'x' }, api);
+    const calls = [];
+    const client = fakeClient(calls);
+    let closes = 0;
+    client.close = () => { closes++; };
+    p.client = client;
+    p.vehicle = { vin: 'YSMTEST0000000001' }; p.model = 'Polestar 3';
+    p.setupAccessories();
+    await p.refresh(); // locked = true
+
+    const { Service: S, Characteristic: C } = hap;
+    const lock = api.registered.find((a) => a.context.kind === 'lock').getService(S.LockMechanism);
+    const target = lock.getCharacteristic(C.LockTargetState);
+
+    // already locked → no command
+    await target.handleSetRequest(C.LockTargetState.SECURED);
+    assert.deepStrictEqual(calls, []);
+
+    // unlock once, then a duplicate within 30 s is dropped
+    await target.handleSetRequest(C.LockTargetState.UNSECURED);
+    p.state.locked = true; // pretend a refresh saw it locked again
+    await target.handleSetRequest(C.LockTargetState.UNSECURED);
+    assert.deepStrictEqual(calls, ['unlock']);
+
+    // a command in flight blocks a second one with the same key
+    let release;
+    client.lock = () => new Promise((r) => { release = () => r({ ok: true }); });
+    p.state.locked = false;
+    const first = target.handleSetRequest(C.LockTargetState.SECURED);
+    p.lastCommand.clear();
+    await target.handleSetRequest(C.LockTargetState.SECURED);
+    release(); await first;
+
+    // disconnect closes the session only when nothing is in flight
+    closes = 0;
+    p.disconnect();
+    assert.strictEqual(closes, 1);
+
+    // rate limiting doubles the poll multiplier, success resets it
+    const ok = client.getLatestBattery;
+    const okExt = client.getLatestExterior;
+    client.getLatestBattery = async () => { throw new Error('gRPC x status=8 (RESOURCE_EXHAUSTED) message="slow down"'); };
+    client.getLatestExterior = client.getLatestBattery;
+    await assert.rejects(p.refresh());
+    assert.strictEqual(p.backoff, 2);
+    client.getLatestBattery = ok;
+    client.getLatestExterior = okExt;
+    await p.refresh();
+    assert.strictEqual(p.backoff, 1);
+    p.shutdown();
+});

@@ -1,6 +1,6 @@
 {
   "name": "homebridge-polestar-c3",
-  "version": "0.2.3",
+  "version": "0.2.4-beta.1",
   "description": "Unofficial Homebridge plugin for Polestar 2/3/4 via the C3 cloud backend: lock, climate, charging, battery and doors in HomeKit.",
   "license": "GPL-3.0-only",
   "main": "index.js",

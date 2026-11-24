@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.4-beta.1 — 24 November 2026 (test version)
+Attempt to fix the official Polestar app failing to control the car while the plugin runs.
+- The connection to Polestar is closed after every poll and command instead of being kept open with a ping every 30 s.
+- Calmer polling: minimum 5 minutes, also while charging or with climate on (was 2).
+- When Polestar limits requests (RESOURCE_EXHAUSTED / HTTP 429), polling slows down (up to 6x, max 60 min) and failed reads are not retried.
+- Commands are never stacked: a second command while one is being sent, or the same command within 30 s, is skipped. Lock/climate commands are not sent when the car is already in that state.
+
 ## 0.2.3 — 18 November 2026
 Verified by Homebridge 🎉. Suggestions from the review:
 - Fix: the client advertised gzip support it does not have; a compressed reply would have thrown outside any error handler and could crash Homebridge. It now only asks for uncompressed replies, and an unexpected compressed frame is reported as a normal error.
